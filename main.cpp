@@ -15,28 +15,54 @@ int func2(int value){
 
 
 int main() {
-//    auto *node = new Node<int>(2);
-//    node->addChild(3);
-//    node->addChild(4);
-//    node->addChild(2);
-//    node->addChild(10);
-//    node->addChild(3);
-//    BinaryTree<int>newTree(node);
-//    newTree.printTree3();
-//
-//    newTree.deleteNode(3);
-//    newTree.addNode(10);
-//    int number = 10;
-//    newTree.find(number);
-//    binaryTreeTest();
-
-    auto node = new Node<int>(0);
+    auto node = new Node<int>(1);
+    Node<int>* newNode;
     node->addChild(5);
-    BinaryTree<int>tree(node);
-    tree.deleteNode(5);
+    node->addChild(-2);
+    node->addChild(7);
+    node->addChild(9);
+    node->addChild(8);
+    node->addChild(-2);
+    node->addChild(11);
+    node->addChild(15);
     node->getInfo();
-    node->getData();
-    node->getRigthChild();
+    newNode = node->getLeftChild();
+    delete newNode;
+    newNode->getData();
+    node->getInfo();
+
+
+
+
+//    auto node = new Node<int>(2);
+//    node->addChild(4);
+//    node->addChild(16);
+//    node->addChild(1);
+//    node->addChild(0);
+//    node->printNode();
+//    auto Tree = new BinaryTree<int>;
+//    *Tree = BinaryTree<int>(node);
+//    Tree->printTree();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //    Heap<int>heap;

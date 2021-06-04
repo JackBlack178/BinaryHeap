@@ -54,11 +54,10 @@ int deleteNodeTest(){
     auto root = new Node<int>();
     *root = Node<int>(0);
     root->addChild(2);
-    root->printNode();
     auto Tree = new BinaryTree<int>(root);
-
-    delete root;
     Tree->printTree3();
+    root = Tree->getRoot();
+    delete Tree;
     return 1;
 }
 
@@ -133,7 +132,7 @@ int binaryTreeMapTest(int func(int)){
         *Tree = BinaryTree<int>(root);
 
         BinaryTree<int>mappedTree = *Tree;
-        mappedTree.map(func, mappedTree.getRoot());
+
         mappedTree.printTree3();
         Tree->printTree3();
         return 0;

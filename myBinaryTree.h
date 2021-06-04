@@ -19,9 +19,9 @@ template <class T>
 class Node{
 private:
     Node *left = nullptr;
-    Node *rigth = nullptr;
+    Node *right = nullptr;
     Node *parent = nullptr;
-    T data;
+    T data = 0;
     int heigth = 1;
 
     int nodesIsTheSamePrivate(Node<T>* node1, Node<T>* node2){
@@ -38,38 +38,29 @@ private:
 
     void addChildPrivate(T Tdata, Node<T> *node ){
         if (node == nullptr){
-            Node<T> newNode(Tdata);
-            *node = newNode;
+            node = new Node<T>(Tdata);
             return;
         }
 
         if (Tdata < node->data){
             if (node->left == nullptr){
-                Node<T> newNode(Tdata);
-                newNode.left = nullptr;
-                newNode.rigth = nullptr;
-                newNode.parent = node;
-                newNode.heigth = node->heigth + 1;
-                node->left = new Node<T>;
-                *node->left = newNode;
+                node->left = new Node<T>(Tdata);
+                node->left->parent = node;
+                node->left->heigth = node->heigth + 1;
                 return;
             }
             else
                 return addChildPrivate(Tdata, node->left);
         }
         if (Tdata > node->data){
-            if (node->rigth == nullptr){
-                Node<T> newNode(Tdata);
-                newNode.left = nullptr;
-                newNode.rigth = nullptr;
-                newNode.parent = node;
-                newNode.heigth = node->heigth + 1;
-                node->rigth = new Node<T>;
-                *node->rigth = newNode;
+            if (node->right == nullptr){
+                node->right = new Node<T>(Tdata);
+                node->right->parent = node;
+                node->right->heigth = node->heigth + 1;
                 return;
             }
             else
-                return addChildPrivate(Tdata, node->rigth);
+                return addChildPrivate(Tdata, node->right);
         }
     }
 
@@ -77,9 +68,9 @@ private:
 
         if (newRoot->getData() < node->getData()){
             if (newRoot->getRigthChild() == nullptr)
-                newRoot->rigth = node;
+                newRoot->right = node;
             else
-                addExistingChildPrivate(newRoot->rigth, node);
+                addExistingChildPrivate(newRoot->right, node);
         }
 
         if (newRoot->getData() > node->getData()){
@@ -90,10 +81,58 @@ private:
         }
     }
 
+
+    Node<T>* RightRotation(Node *x)
+    {
+        Node *y=x->left;
+        x->left=y->right;
+        y->right=x;
+        return y;
+    }
+
+    Node<T> *LeftRotation(Node *y)
+    {
+        Node *x=y->right;
+        y->right=x->left;
+        x->left=y;
+        return x;
+    }
+
+    Node *BalancePrivate(Node *x)
+    {
+        OverHeight(x);
+        if (BF(x)==2)
+        {
+            if (BF(x->right) < 0) x->right=RightRotation(x->right);
+            return LeftRotation(x);
+        }
+        if (BF(x)==-2)
+        {
+            if (BF(x->left)>0) x->left=LeftRotation(x->left);
+            return RightRotation(x);
+        }
+        return x;
+    }
+
+    void deleteNodePrivate(Node<T>* node){
+        if (node == nullptr)
+            return;
+        deleteNodePrivate(node->left);
+        deleteNodePrivate(node->right);
+        node->resetChildForParent();
+        delete node;
+    }
+
+
+
 public:
+    Node* Balance(){
+        return BalancePrivate(this);
+    }
+
     Node(Node &node){
         *left = *node.left;
-        *rigth = *node.rigth;
+        *right = *node.right;
         *parent = *node.parent;
         data = node.data;
         heigth = node.heigth;
@@ -107,49 +146,60 @@ public:
         cout << "data: " << data << endl;
         cout << "heigth: " << heigth << endl;
         cout << "has leftChild: " << (left != nullptr) << endl;
-        cout << "has rigthChild: " << (rigth != nullptr) << endl;
+        cout << "has rigthChild: " << (right != nullptr) << endl;
         cout << "has parent: " << (parent != nullptr) << endl;
+        cout << "-----------" << endl;
     }
 
     explicit Node(T data){
         left = nullptr;
-        rigth = nullptr;
+        right = nullptr;
         parent = nullptr;
         this->data = data;
         heigth = 1;
     }
 
+//    ~Node(){
+//        if (this == nullptr)
+//            return;
+//
+//        if (this->left != nullptr)
+//        {
+//            deleteNodePrivate(this->left);
+//        }
+//
+//        if (this->right != nullptr){
+//            deleteNodePrivate(this->right);
+//        }
+//
+//        this->resetChildForParent();
+//    }
 
-    void deleteNode(Node<T>* node){
-        if (node == nullptr)
-            return;
-
-        if (node->left != nullptr)
-        {
-            deleteNode(node->left);
-            node->left = nullptr;
-        }
-
-        if (node->rigth != nullptr){
-            deleteNode(node->rigth);
-            rigth = nullptr;
-        }
-        delete node;
+    void deleteNode(){
+        deleteNodePrivate(this);
     }
 
+    void resetChildForParent(){
+        if (parent == nullptr)
+            return;
+
+        if (parent->left == this)
+            parent->left = nullptr;
+
+        if (parent->right == this)
+            parent->right = nullptr;
+    }
 
     Node<T>& operator = (const Node<T>* node){
         data = node->data;
         heigth = node->heigth;
 
         if (node->left != nullptr){
-            left = new Node<T>();
-            *left = *node->left;
+            left = new Node<T>(node->left);
         }
 
-        if (node->rigth != nullptr){
-            rigth = new Node<T>();
-            *rigth = *node->rigth;
+        if (node->right != nullptr){
+            right = new Node<T>(node->right);
         }
     }
 
@@ -166,7 +216,7 @@ public:
     }
 
     Node * getRigthChild(){
-        return rigth;
+        return right;
     }
 
     Node * getParent(){
@@ -181,33 +231,30 @@ public:
         heigth = number;
     }
 
-
     void addChild(T Data){
         addChildPrivate(Data, this);
     }
 
-
     void printNode(std::ostream& output = std::cout) {
-        if (!data)
+        if (this == nullptr)
             return;
         cout << " " << data << endl;
-        if (left == nullptr && rigth == nullptr)
+        if (left == nullptr && right == nullptr)
             return;
-        if (rigth == nullptr && left != nullptr) {
+        if (right == nullptr && left != nullptr) {
             cout << left->data << endl;
             return;
         }
 
-        if (left == nullptr && rigth != nullptr) {
-            cout << "   " << rigth->data << endl;
+        if (left == nullptr && right != nullptr) {
+            cout << "   " << right->data << endl;
             return;}
-            cout << left->data << " " << rigth->data << endl;
+            cout << left->data << " " << right->data << endl;
         }
 
     void addExistingChild(Node<T> *node){
         addExistingChildPrivate(this, node);
     }
-
 
     int getHeigth(){
         return heigth;
@@ -221,28 +268,12 @@ public:
         switch(number){
             case 1: left = newChild;
                 return;
-            case 2: rigth = newChild;
+            case 2: right = newChild;
                 return;
             default: return;
         }
     }
 
-
-    T reducePrivate(T func(T value), Node<T>* node, int battery = 0) {
-        if (node == nullptr)
-            return 0;
-
-
-        if (node->getLeftChild() != nullptr)
-            battery = reducePrivate(func, node->getLeftChild(), battery);
-
-        if (node->getRigthChild() != nullptr)
-            battery = reducePrivate(func, node->getRigthChild(), battery);
-
-        battery += func(node->getData());
-
-        return battery;
-    }
 
 };
 
@@ -250,6 +281,15 @@ void func2(Node<int> *node){
     cout << node->getData() << endl;
 }
 
+int func3(int value1, int value2, int direction){
+    if (direction == 2 and value2 == value1 * 2){
+        return 1;
+    }
+
+    else if (direction == 1 and value1 * 2 == value2)
+        return 1;
+    return 0;
+}
 
 template <class T>
 class BinaryTree{
@@ -351,17 +391,13 @@ private:
             return;
 
         if (value == root->getData()){
-            delete root;
+            root->deleteNode();
             root = nullptr;
             return;
         }
 
         if (node->getData() == value){
-            if (node->getParent()->getLeftChild() == node){
-                node->getParent()->setChild(1, nullptr);
-            }
-            else
-                node->getParent()->setChild(2, nullptr);
+            node->resetParentFor();
             delete node;
             return;
         }
@@ -408,37 +444,47 @@ private:
         }
     }
 
-    void addNodeWithConditionPrivate( T func(T), Node<T>* node, Node<T>* newNode){
-        if (node->getLeftChild() != nullptr && node->getData() == func(node->getLeftChild()->getData())){
+    void addNodeWithConditionPrivate( int func(T,T, int), Node<T>* node, Node<T>* newNode){
+        if (node->getLeftChild() != nullptr && func(node->getData(), node->getLeftChild()->getData(), 1)){
             newNode->addExistingChild(node->getLeftChild());
             addNodeWithCondition(func, node->getLeftChild(), newNode);
         }
 
-        if (node->getRigthChild() != nullptr && node->getData() == func(node->getRightChild()->getData())){
+        if (node->getRigthChild() != nullptr && func(node->getData(), node->getRigthChild()->getData(), 2)){
             newNode->addExistingChild(node->getRigthChild());
             addNodeWithCondition(func, node->getRigthChild(), newNode);
         }
     }
 
-    void deleteNode2Private(T data, Node<T>* node){
-        if (node == nullptr)
+    void mapPrivate(T func(T), Node<T>* node){
+        if (root == nullptr)
             return;
 
-        if (node->getData() == data){
-            delete node;
-            node = nullptr;
-        }
+        node->setValue(func(node->getData()));
 
-        if (data > node->getData()){
-            if (node->getRigthChild() != nullptr)
-                deleteNode2Private(data, node->getRigthChild());
-        }
+        if (node->getLeftChild() != nullptr)
+            map(func, node->getLeftChild());
 
-        if (data < node->getData()){
-            if (node->getLeftChild() != nullptr)
-                deleteNode2Private(data, node->getLeftChild());
-        }
+        if (node->getRigthChild() != nullptr)
+            map(func, node->getRigthChild());
     }
+
+    T reducePrivate(T func(T value), Node<T>* node, int battery = 0) {
+        if (node == nullptr)
+            return 0;
+
+
+        if (node->getLeftChild() != nullptr)
+            battery = reducePrivate(func, node->getLeftChild(), battery);
+
+        if (node->getRigthChild() != nullptr)
+            battery = reducePrivate(func, node->getRigthChild(), battery);
+
+        battery += func(node->getData());
+
+        return battery;
+    }
+
 
 public:
 
@@ -464,13 +510,16 @@ public:
         delete root;
     }
 
-
     int operator == (BinaryTree<T>* tree){
+        if (root == nullptr and tree == nullptr or root == nullptr and tree->getRoot() == nullptr)
+            return 1;
+        if (root == nullptr and tree != nullptr or root != nullptr and tree == nullptr)
+            return 0;
         return root->nodesIsTheSame(root, tree->getRoot());
     }
 
     int operator != (BinaryTree<T>* tree){
-        return not(root->nodesIsTheSame(root, tree->getRoot()));
+        return root != tree->getRoot();
 
     }
 
@@ -500,10 +549,6 @@ public:
         deleteNodePrivate(data, root);
     }
 
-    void deleteNode2(T data){
-       deleteNode2Private(data, root);
-
-    }
 
     void addTreeInArray(myArraySequence<T>*array, int index){
         addTreeInArrayPrivate(root, array, index);
@@ -512,7 +557,7 @@ public:
     myArraySequence<T>* getArray(){
         myArraySequence<T>* array = new myArraySequence<int>;
         for (int i = 0; i < pow(2,getMaxHeigth(root) + 1); i++){array->append(0);}
-        addInArray(array,0);
+        addTreeInArrayPrivate(root, array,0);
         return array;
     }
 
@@ -596,7 +641,6 @@ public:
         return root;
     }
 
-
     void KLPtraversal(void (*func)(Node<T>*), Node<T>* node){
         if (root == nullptr)
             return;
@@ -657,28 +701,21 @@ public:
             KLPtraversal(func, node->getLeftChild());
     }
 
-    void map(T func(T), Node<T>* node){
-        if (root == nullptr)
-            return;
-
-        node->setValue(func(node->getData()));
-
-        if (node->getLeftChild() != nullptr)
-            map(func, node->getLeftChild());
-
-        if (node->getRigthChild() != nullptr)
-            map(func, node->getRigthChild());
+    void map(T func(T)){
+        mapPrivate(func, root);
     }
 
-    BinaryTree<T>* where(T func(T)){
-        auto newTree = new BinaryTree<T>;
-        *newTree = BinaryTree<T>(root);
-        addNodeWithCondition(func, this, newTree);
+    // Func - function returns 1 if condition is true and 0 if it isn't accordingly
+    // Recieves root data and child data and check some conditions
+
+    BinaryTree<T>* where(int func(T,T,int)){
+        auto newTree = new BinaryTree<T>(root);
+        addNodeWithCondition(func, newTree);
         return newTree;
 
     }
 
-    void addNodeWithCondition( T func(T), Node<T>* node, Node<T>* newNode){
+    void addNodeWithCondition( int func(T,T),Node<T>* newNode){
         addNodeWithConditionPrivate(func, root, newNode);
     }
 
@@ -690,17 +727,10 @@ public:
     }
 
     int isBalanced(){
-        /*
-        if (root->getLeftChild() == nullptr)
-            return 0;
-        if (root->getRigthChild() == nullptr)
-            return 0;
-        */
         auto left = root->getLeftChild() == nullptr ? 0 : getMaxHeigthPrivate(root->getLeftChild());
         auto right = root->getRigthChild() == nullptr ? 0 : getMaxHeigthPrivate(root->getRigthChild());
 
         return abs(left - right) <= 1;
-//        return abs(getMaxHeigthPrivate(root->getLeftChild()) - getMaxHeigthPrivate(root->getRigthChild())) <= 1;
     }
 
     BinaryTree<T>* balance(){
