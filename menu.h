@@ -12,19 +12,13 @@ BinaryTree<int>* createTree(){
     *node = Node<int>(0);
 
     for (int i = 0; i < 5; i++)
-        node->addChild(rand() % 10, node);
+        node->addChild(rand() % 10);
     auto* Tree = new BinaryTree<int>(node);
     return Tree;
 }
 
 void menu(){
-    while(true){
-        cout << "Creating tree\n";
-        auto* Tree = createTree();
-        Tree->printTree3();
-        int number;
-        cin >> number;
-    }
+
 }
 
 

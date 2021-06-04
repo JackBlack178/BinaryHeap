@@ -15,63 +15,28 @@ int func2(int value){
 
 
 int main() {
+//    auto *node = new Node<int>(2);
+//    node->addChild(3);
+//    node->addChild(4);
+//    node->addChild(2);
+//    node->addChild(10);
+//    node->addChild(3);
+//    BinaryTree<int>newTree(node);
+//    newTree.printTree3();
+//
+//    newTree.deleteNode(3);
+//    newTree.addNode(10);
+//    int number = 10;
+//    newTree.find(number);
+//    binaryTreeTest();
 
-    auto *node = new Node<int>;
-    *node = Node<int>(2);
-    node->addChild(3, node);
-    node->addChild(4, node);
-
-
-    auto *node2 = new Node<int>(1);
-    auto* newTree= new BinaryTree<int>(node2);
-    node2->addChild(10, node2);
-    node2->addChild(4, node2);
-    node2->addChild(3, node2);
-    newTree->printTree3();
-    node2->addChild(5, node2);
-    node2->addChild(1, node2);
-    node2->addChild(0, node2);
-    node2->addChild(-5, node2);
-    node2->addChild(-7, node2);
-    node2->addChild(-3, node2);
-    node2->addChild(-1, node2);
-    node2->addChild(-100, node2);
-
-    binaryTreeTest();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    auto node = new Node<int>(0);
+    node->addChild(5);
+    BinaryTree<int>tree(node);
+    tree.deleteNode(5);
+    node->getInfo();
+    node->getData();
+    node->getRigthChild();
 
 
 //    Heap<int>heap;
