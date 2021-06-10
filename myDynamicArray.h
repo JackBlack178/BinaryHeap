@@ -58,11 +58,6 @@ public:
         }
     }
 
-    explicit myDynamicArray(myDynamicArray<T> *dynamicArray) {
-        len = dynamicArray->len;
-        arr = dynamicArray->arr;
-        elementSize = dynamicArray->elementSize;
-    }
 
     ~myDynamicArray() {
         delete[] arr;
@@ -100,14 +95,6 @@ public:
         for (int i = 0; i < len; i++) {
             arr[i] = dynamicArray.arr[i];
         }
-        return *this;
-    }
-
-    myDynamicArray<T> &operator = (myDynamicArray<T> *dynamicArray) {
-        arr = dynamicArray->arr;
-        len = dynamicArray->len;
-        elementSize = dynamicArray->elementSize;
-
         return *this;
     }
 

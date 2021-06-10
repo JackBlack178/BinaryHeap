@@ -116,21 +116,28 @@ public:
         return heap.heapSize == heapSize and heap.elements == elements;
     }
 
-    int isTreeTheSame(Heap<T>heap1, Heap<T>heap2){
+    int operator != (Heap<T>heap){
+        return !(heap == *this);
+    }
+
+    T &operator [] (int index) {
+        if (index < 0 || index >= getSize())
+            throw IndexOutOfRange();
+        return elements[index];
+    }
+
+    int isHeapTheSame(Heap<T>heap1, Heap<T>heap2){
         if (heap1.heapSize != heap2.heapSize or heap1.heapSize == 0 or heap2.heapSize == 0)
             return 0;
         return heap1.elements == heap2.elements;
     }
 
-    int operator != (Heap<T>heap){
-        return !(heap == *this);
-    }
 
     int isSubHeap(Heap<T>subHeap){
         if (subHeap.heapSize == 0)
             return 0;
         Heap<T>childHeap = getSubHeap(subHeap.elements[0]);
-        return isTreeTheSame(childHeap, subHeap);
+        return isHeapTheSame(childHeap, subHeap);
     }
 
 
@@ -209,15 +216,26 @@ public:
         return *newHeap;
     }
 
+    Heap<T> map(T func(T), T b){
+        T *a = new T[heapSize];
+        for (int i = 0; i < heapSize; ++i) {
+            a[i] = elements[i];
+        }
+
+        myArraySequence<T> array(a, heapSize);
+        for (int i = 0; i < heapSize; ++i) {
+            array.set(func(array.get(i)),i);
+        }
+        Heap<T> heap(array);
+        return heap;
+    }
+
+    T reduce(T func(T), T battery = 0){
+        for (int i = 0; i < heapSize; i++){
+            battery+= func(elements[i]);
+        }
+        return battery;
+    }
 };
-
-
-
-
-
-
-
-
-
 
 #endif //LAB3_MYBINARYHEAP_H

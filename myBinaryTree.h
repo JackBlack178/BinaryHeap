@@ -98,21 +98,6 @@ private:
         return x;
     }
 
-    Node *BalancePrivate(Node *x)
-    {
-        OverHeight(x);
-        if (BF(x)==2)
-        {
-            if (BF(x->right) < 0) x->right=RightRotation(x->right);
-            return LeftRotation(x);
-        }
-        if (BF(x)==-2)
-        {
-            if (BF(x->left)>0) x->left=LeftRotation(x->left);
-            return RightRotation(x);
-        }
-        return x;
-    }
 
     void deleteNodePrivate(Node<T>* node){
         if (node == nullptr)
@@ -123,33 +108,16 @@ private:
         delete node;
     }
 
-
-
 public:
     Node* Balance(){
         return BalancePrivate(this);
     }
 
-    Node(Node &node){
-        *left = *node.left;
-        *right = *node.right;
-        *parent = *node.parent;
-        data = node.data;
-        heigth = node.heigth;
+    explicit Node(Node *node){
+        *this = *node;
     }
 
     Node() = default;
-
-
-    /// Delete !!!
-    void getInfo(){
-        cout << "data: " << data << endl;
-        cout << "heigth: " << heigth << endl;
-        cout << "has leftChild: " << (left != nullptr) << endl;
-        cout << "has rigthChild: " << (right != nullptr) << endl;
-        cout << "has parent: " << (parent != nullptr) << endl;
-        cout << "-----------" << endl;
-    }
 
     explicit Node(T data){
         left = nullptr;
@@ -158,22 +126,6 @@ public:
         this->data = data;
         heigth = 1;
     }
-
-//    ~Node(){
-//        if (this == nullptr)
-//            return;
-//
-//        if (this->left != nullptr)
-//        {
-//            deleteNodePrivate(this->left);
-//        }
-//
-//        if (this->right != nullptr){
-//            deleteNodePrivate(this->right);
-//        }
-//
-//        this->resetChildForParent();
-//    }
 
     void deleteNode(){
         deleteNodePrivate(this);
@@ -190,17 +142,18 @@ public:
             parent->right = nullptr;
     }
 
-    Node<T>& operator = (const Node<T>* node){
-        data = node->data;
-        heigth = node->heigth;
+    Node<T>& operator = (const Node<T>& node){
+        data = node.data;
+        heigth = node.heigth;
 
-        if (node->left != nullptr){
-            left = new Node<T>(node->left);
+        if (node.left != nullptr){
+            left = new Node<T>(node.left);
         }
 
-        if (node->right != nullptr){
-            right = new Node<T>(node->right);
+        if (node.right != nullptr){
+            right = new Node<T>(node.right);
         }
+        return *this;
     }
 
     int operator == (Node<T>& node){
@@ -208,7 +161,11 @@ public:
     }
 
     int operator != (Node<T>& node){
-        return not nodesIsTheSame(this,node);
+        return  !nodesIsTheSame(this,node);
+    }
+
+    int nodeIsTheSame(Node<T>* node){
+        return nodesIsTheSamePrivate(this,node);
     }
 
     Node * getLeftChild(){
@@ -235,22 +192,6 @@ public:
         addChildPrivate(Data, this);
     }
 
-    void printNode(std::ostream& output = std::cout) {
-        if (this == nullptr)
-            return;
-        cout << " " << data << endl;
-        if (left == nullptr && right == nullptr)
-            return;
-        if (right == nullptr && left != nullptr) {
-            cout << left->data << endl;
-            return;
-        }
-
-        if (left == nullptr && right != nullptr) {
-            cout << "   " << right->data << endl;
-            return;}
-            cout << left->data << " " << right->data << endl;
-        }
 
     void addExistingChild(Node<T> *node){
         addExistingChildPrivate(this, node);
@@ -281,15 +222,6 @@ void func2(Node<int> *node){
     cout << node->getData() << endl;
 }
 
-int func3(int value1, int value2, int direction){
-    if (direction == 2 and value2 == value1 * 2){
-        return 1;
-    }
-
-    else if (direction == 1 and value1 * 2 == value2)
-        return 1;
-    return 0;
-}
 
 template <class T>
 class BinaryTree{
@@ -340,6 +272,8 @@ private:
 
         if (value < node->getData())
             return getSubTreePrivate(value, node->getLeftChild());
+
+        return nullptr;
     }
 
     int isSubTreePrivate(Node<T>* node, BinaryTree<T>* subTree){
@@ -397,7 +331,7 @@ private:
         }
 
         if (node->getData() == value){
-            node->resetParentFor();
+            node->resetChildForParent();
             delete node;
             return;
         }
@@ -463,10 +397,10 @@ private:
         node->setValue(func(node->getData()));
 
         if (node->getLeftChild() != nullptr)
-            map(func, node->getLeftChild());
+            mapPrivate(func, node->getLeftChild());
 
         if (node->getRigthChild() != nullptr)
-            map(func, node->getRigthChild());
+            mapPrivate(func, node->getRigthChild());
     }
 
     T reducePrivate(T func(T value), Node<T>* node, int battery = 0) {
@@ -485,22 +419,45 @@ private:
         return battery;
     }
 
+    int getNumberOfNodesPrivate(Node<T>* node, int numbers = 0) {
+        if (node == nullptr)
+            return 0;
+
+        numbers++;
+
+        if (node->getLeftChild() == nullptr and node->getRigthChild() == nullptr)
+            return numbers;
+
+        if (node->getLeftChild() != nullptr and node->getRigthChild() != nullptr) {
+            return getNumberOfNodesPrivate(node->getLeftChild(), numbers) +
+                   getNumberOfNodesPrivate(node->getRigthChild(), numbers) - numbers;
+        }
+
+        if (node->getLeftChild() != nullptr) {
+            return getNumberOfNodesPrivate(node->getLeftChild(), numbers);
+        }
+
+        if (node->getRigthChild() != nullptr) {
+            return getNumberOfNodesPrivate(node->getRigthChild(), numbers);
+        }
+
+    }
 
 public:
 
-    BinaryTree( BinaryTree &tree){
-        *root = *(tree.root);
+    BinaryTree(BinaryTree &tree){
+        if (root == nullptr){
+            root = new Node<T>(tree.getRoot());
+        }
+        *root = *tree.root;
     }
 
     explicit BinaryTree(Node<T> *node){
-        root = new Node<T>;
-        *root = *node;
-        delete node;
+        root = node;
     }
 
     explicit BinaryTree(T data){
-        root = new Node<T>;
-        *root = Node<T>(data);
+        root = new Node<T>(data);
 
     }
 
@@ -524,9 +481,12 @@ public:
     }
 
     BinaryTree<T>& operator = (const BinaryTree<T>* tree){
-        if (root == nullptr)
-            root = new Node<T>();
+        if (root == nullptr){
+            root = new Node<T>(tree->getRoot());
+            return *this;
+        }
         *root = *(tree->root);
+        return *this;
     }
 
     Node<T>* find(const T& data) const {
@@ -561,24 +521,8 @@ public:
         return array;
     }
 
-    int getNumberOfNodes(Node<T>* node, int numbers = 0){
-        numbers++;
-
-        if (node->getLeftChild() == nullptr and node->getRigthChild() == nullptr)
-            return numbers;
-
-        if (node->getLeftChild() != nullptr and node->getRigthChild() != nullptr){
-            return getNumberOfNodes(node->getLeftChild(), numbers) + getNumberOfNodes(node->getRigthChild(), numbers) - numbers;
-        }
-
-        if (node->getLeftChild() != nullptr){
-            return getNumberOfNodes(node->getLeftChild(), numbers);
-        }
-
-        if (node->getRigthChild() != nullptr){
-            return getNumberOfNodes(node->getRigthChild(), numbers);
-        }
-
+    int getNumberOfNodes(){
+        getNumberOfNodesPrivate(root, 0);
     }
 
     BinaryTree<T>* getSubTree(T data){
@@ -609,32 +553,6 @@ public:
 
     void printTree(){
         KLPtraversal(&func2, root);
-    }
-
-    void printTree3(std::ostream& output = std::cout){
-        if (root == nullptr)
-            return;
-
-        myArraySequence<T> array;
-        for (int i = 0; i < pow(2,getMaxHeigth() + 1); i++){array.append(root->getData());}
-        addTreeInArray(&array,0);
-        int len = array.getLength();
-
-        int i = 0;
-        int k = 1;
-        while(i < pow(2,getMaxHeigth()+1) - 1) {
-            for (int j = 0; j < getMaxHeigth() * 4 - k; ++j) {cout<<" ";}
-            while((i < k) && (i < len)) {
-                if (i != 0 and array.get(i) == root->getData())
-                    cout << " ";
-
-                else
-                    cout << array.get(i) << " ";
-                i++;
-            }
-            cout << std::endl;
-            k = k * 2 + 1;
-        }
     }
 
     Node<T>* getRoot(){
@@ -705,11 +623,10 @@ public:
         mapPrivate(func, root);
     }
 
-    // Func - function returns 1 if condition is true and 0 if it isn't accordingly
-    // Recieves root data and child data and check some conditions
 
     BinaryTree<T>* where(int func(T,T,int)){
-        auto newTree = new BinaryTree<T>(root);
+        auto newRootNode = new Node<T>(root);
+        auto newTree = new BinaryTree<T>(newRootNode);
         addNodeWithCondition(func, newTree);
         return newTree;
 

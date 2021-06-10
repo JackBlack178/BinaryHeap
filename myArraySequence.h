@@ -28,8 +28,6 @@ public:
         dynamicArray = array.dynamicArray;
     }
 
-
-
     explicit myArraySequence(const myDynamicArray<T> &array) {
         dynamicArray = array;
     }
